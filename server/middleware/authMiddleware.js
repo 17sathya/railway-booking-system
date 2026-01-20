@@ -1,30 +1,24 @@
 const jwt = require("jsonwebtoken");
 
-const authMiddleware = (req, res, next) => {
-  const token = req.header("Authorization");
+module.exports = (req, res, next) => {
+  const authHeader = req.headers.authorization;
 
+  console.log("AUTH HEADER RECEIVED:", authHeader);
 
-
-
-  if (!token) {
-    return res.status(401).json({ message: "No token, access denied" });
+  if (!authHeader) {
+    return res.status(401).json({ message: "No token provided" });
   }
+
+  const token = authHeader.startsWith("Bearer ")
+    ? authHeader.split(" ")[1]
+    : authHeader;
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, "secret123"); // 🔥 HARD-CODED
     req.user = decoded;
     next();
-  } catch (error) {
-    res.status(401).json({ message: "Token is not valid" });
+  } catch (err) {
+    console.error("JWT VERIFY ERROR:", err.message);
+    return res.status(401).json({ message: "Token is not valid" });
   }
 };
-
-const adminMiddleware = (req, res, next) => {
-  if (req.user && req.user.role === "admin") {
-    next();
-  } else {
-    res.status(403).json({ message: "Admin access denied" });
-  }
-};
-
-module.exports = authMiddleware;

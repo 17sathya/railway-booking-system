@@ -6,6 +6,7 @@ const trainRoutes = require("./routes/trainRoutes");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
+const bookingRoutes = require("./routes/bookingRoutes");
 
 const app = express();
 
@@ -16,6 +17,9 @@ connectDB();
 
 app.use("/api/auth", authRoutes);
 app.use("/api/trains", trainRoutes);
+app.use("/api/bookings", bookingRoutes);
+
+
 app.get("/api/protected", authMiddleware, (req, res) => {
   res.json({ message: "Protected route accessed", user: req.user });
 });
